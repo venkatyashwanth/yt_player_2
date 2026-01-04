@@ -1,0 +1,24 @@
+:root {
+    --bg: #0f1724;
+    --card: #0b1220;
+    --item-bg: rgba(255, 255, 255, 0.04);
+    --list-num: rgba(255, 255, 255, 0.05);
+    --primary-clr: #a9a9a9;
+    --input-border: rgba(255, 255, 255, 0.06);
+    --icn-clr: #f0f8ff;
+    /* common */
+    --accent1: #ff416c;
+    --accent2: #ff4b2b;
+    --scrollbar-color: rgba(255, 255, 255, 0.35);
+}
+
+[data-theme="light"] {
+    --bg: #f7f8fb;
+    --card: #fffaf0;
+    --item-bg: #ffe4c4;
+    --list-num: #ff7f50;
+    --primary-clr: #556b2f;
+    --input-border: #ffdab9;
+    --icn-clr: #d2691e;
+    --scrollbar-color: rgba(0, 0, 0, 0.25);
+}

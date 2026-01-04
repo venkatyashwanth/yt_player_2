@@ -1,0 +1,83 @@
+@import "../styles/variables.scss";
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  background-color: var(--bg);
+  font-family: "Lato", sans-serif;
+  padding: 10px;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.btn {
+  background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  color: #fff;
+  border: 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+
+  &:disabled {
+    background: gray;
+    cursor: not-allowed;
+  }
+}
+
+.player-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.icon-btn {
+  background-color: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 20px;
+  transition: transform 0.3s;
+
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+.message-toast {
+  position: fixed;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.75);
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* ========== Desktop Enhancement ========== */
+@media (min-width: 600px) {
+  .player-wrap {
+    flex-direction: row;
+  }
+}

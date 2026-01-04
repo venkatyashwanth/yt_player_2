@@ -1,0 +1,112 @@
+.videoArea {
+    width: 100%;
+}
+
+.videoBox {
+    position: relative;
+    padding-bottom: 56.25%;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+
+    /* show overlay when hovering video */
+    &:hover .wheelOverlay {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    &:hover .volumeHint {
+        opacity: 1;
+        transform: translateX(0);
+    }
+
+    .wheelOverlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 80%;
+        height: 50%;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        cursor: ns-resize;
+        opacity: 0;
+        pointer-events: none;
+        background: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0.18),
+                rgba(255, 255, 255, 0.08));
+        backdrop-filter: blur(5px);
+        // border-right: 1px solid rgba(255, 255, 255, 0.25);
+        transition:
+            opacity 0.25s ease,
+            background 0.25s ease;
+    }
+
+    /* label */
+    .volumeHint {
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: rgba(255, 255, 255, 0.75);
+
+        opacity: 0;
+        transform: translateX(-12px);
+
+        transition:
+            opacity 0.2s ease,
+            transform 0.25s ease;
+    }
+
+    /* number */
+    .volumeValue {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #fff;
+
+        transform: scale(0.95);
+        transition: transform 0.15s ease;
+    }
+
+    .player {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        z-index: 1;
+    }
+}
+
+.videoCtrls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+
+    .currentTitle {
+        font-size: 1.4rem;
+        background: var(--item-bg);
+        color: var(--primary-clr);
+        border-radius: 8px;
+        padding: 10px 12px;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .navBtns {
+        display: flex;
+        gap: 8px;
+        flex-shrink: 0;
+    }
+}
+
+/* Disable wheel overlay on touch devices */
+@media (hover: none) {
+    .wheelOverlay {
+        display: none;
+    }
+}
