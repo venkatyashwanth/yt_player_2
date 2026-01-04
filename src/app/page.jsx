@@ -83,10 +83,11 @@ export default function Home() {
   // Next Button Handler 
   const handleNext = useCallback(() => {
     setCurrentIndex((i) => {
-      const currentPlayItemId = playlist[i].id;
-      clearVideoTime(currentPlayItemId);
+      
       const list = loadPlaylist();
       const listLength = list.length;
+      const currentPlayItemId = list[i].id;
+      clearVideoTime(currentPlayItemId);
       // const listLength = playlist.length;
       if (i < listLength - 1) {
         navToastRef.current = true;
