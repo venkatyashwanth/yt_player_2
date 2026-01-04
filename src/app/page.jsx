@@ -140,7 +140,7 @@ export default function Home() {
 
   // Error Handler
   const handlePlayerError = useCallback(() => {
-    console.log("clicked")
+    console.log("clicked");
     showToast("Video unavailable ⏭ Skipping");
 
     setCurrentIndex((i) => {
@@ -152,10 +152,7 @@ export default function Home() {
   // Remove Blocked Videos
   const handleBlockedVideo = useCallback((blockedIndex) => {
     setPlaylist((prev) => {
-      const blocked = prev[blockedIndex];
-      if (!blocked) return prev;
-
-      const updated = prev.filter((_, i) => i !== blockedIndex);
+      const updated = prev.filter(v => v.id !== blockedIndex);
       savePlaylist(updated);
 
       showToast("Blocked video removed 🧹");
@@ -191,8 +188,6 @@ export default function Home() {
       switch (e.code) {
         case "Space":
           e.preventDefault();
-          console.log("space is pressed");
-          console.log(playerRef.current);
           playerRef.current?.togglePlayPause();
           break;
         case "ArrowUp": {
