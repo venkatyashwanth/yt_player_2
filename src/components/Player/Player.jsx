@@ -20,6 +20,7 @@ const Player = forwardRef(({
     const playerRef = useRef(null);
     const [isPlayerReady, setIsPlayerReady] = useState(false);
     const playAttemptTimeoutRef = useRef(null);
+    const hasStartedRef = useRef(false);
 
     // expose player controls to parent 
     useImperativeHandle(ref, () => ({
@@ -34,7 +35,6 @@ const Player = forwardRef(({
         togglePlayPause() {
             if (!playerRef.current) return;
             const state = playerRef.current.getPlayerState();
-            console.log(state);
             if (state === window.YT.PlayerState.PLAYING) {
                 playerRef.current.pauseVideo();
             } else if (state === -1) {
@@ -92,8 +92,25 @@ const Player = forwardRef(({
 
     // Helper Functions
     const handleStateChange = useCallback((event) => {
+        if (
+            event.data === window.YT.PlayerState.PLAYING ||
+            event.data === window.YT.PlayerState.CUED
+        ) {
+            hasStartedRef.current = true;
+            clearTimeout(playAttemptTimeoutRef.current);
+        }
+
         if (event.data === window.YT.PlayerState.PLAYING) {
-            clearTimeout(playAttemptTimeoutRef);
+            const videoData = event.target.getVideoData?.();
+            const videoId = videoData?.video_id;
+            const video = playlist[currentIndex];
+            console.log(videoId);
+            // console.log(playerRef.current.getCurrentTime?.());
+            // if (!video || !playerRef.current) return;
+            const time = playerRef.current.getCurrentTime?.();
+            if (typeof time === "number") {
+                saveVideoTime(videoId, time); // 🔥 save instantly (0–1s)
+            }
             onPlayingChange(true);
         }
         if (
@@ -112,27 +129,27 @@ const Player = forwardRef(({
         if (!isPlayerReady || currentIndex < 0) return;
         const video = playlist[currentIndex];
         if (!video) return;
+        hasStartedRef.current = false;
         const savedTime = loadVideoTime(video.id);
         playerRef.current.loadVideoById({ videoId: video.id, startSeconds: savedTime || 0 });
         playerRef.current.playVideo();
-
-        clearTimeout(playAttemptTimeoutRef.current);
-        playAttemptTimeoutRef.current = setTimeout(() => {
-            const state = playerRef.current.getPlayerState();
-            if (state === window.YT.PlayerState.UNSTARTED) {
-                console.warn("Blocked video detected:", video.id);
-                onBlockedVideo?.(currentIndex); // manually trigger skip
-            }
-        }, 2500);
-
     }, [currentIndex, isPlayerReady]);
 
     // Handle Error
-    const handleError = (event) => {
-        if ([2, 5, 100, 101, 150].includes(event.data)) {
-            onError?.(); // tell parent to skip
+    const handleError = useCallback((event) => {
+        const errorCode = event.data;
+
+        const videoData = event.target.getVideoData?.();
+        const videoId = videoData?.video_id;
+
+        console.log("YT Error Code:", errorCode);
+        console.log("Blocked video ID:", videoId);
+
+        if ([5, 100, 101, 150].includes(errorCode)) {
+            console.warn("Blocked video confirmed:", videoId);
+            onBlockedVideo?.(videoId);
         }
-    }
+    }, [currentIndex, playlist, onBlockedVideo]);
 
 
     // Save Current time 
@@ -141,20 +158,27 @@ const Player = forwardRef(({
         const interval = setInterval(() => {
             if (!playerRef.current) return;
 
-            const time = playerRef.current.getCurrentTime?.();
+            const state = playerRef.current.getPlayerState();
+            if (state !== window.YT.PlayerState.PLAYING) return;
+
+            // const time = playerRef.current.getCurrentTime?.();
             const video = playlist[currentIndex];
-            if (video && typeof time === "number") {
-                const duration = playerRef.current.getDuration?.();
-                if (typeof duration === "number" && time >= duration - 20) {
-                    return;
-                }
-                console.log("time is saved");
-                saveVideoTime(video.id, time)
+            if (!video) return;
+
+            const time = playerRef.current.getCurrentTime?.();
+            const duration = playerRef.current.getDuration?.();
+
+            if (
+                typeof time === "number" &&
+                typeof duration === "number" &&
+                time < duration - 20
+            ) {
+                console.log("first")
+                saveVideoTime(video.id, time);
             }
         }, 1000)
-
         return () => clearInterval(interval)
-    }, [currentIndex])
+    }, [currentIndex, isPlayerReady])
 
     return (
         <>
