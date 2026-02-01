@@ -78,6 +78,18 @@
         border: 0;
         z-index: 1;
     }
+
+    &.audioOnly{
+        position: relative;
+
+        &::after {
+            content: "";
+            position: absolute;
+            background: #000;
+            inset: 0;
+            z-index: 100;
+        }
+    }
 }
 
 .videoCtrls {

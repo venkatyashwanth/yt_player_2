@@ -1,4 +1,5 @@
 "use client";
+import BottomPlayerBar from "@/components/BottomPlayerBar";
 import Header from "@/components/Header";
 import Player from "@/components/Player";
 import Playlist from "@/components/Playlist";
@@ -13,6 +14,7 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isPrevExist, setisPrevExist] = useState(false);
   const [isNextExist, setisNextExist] = useState(false);
+  const [audioOnly, setAudioOnly] = useState(false);
   const playerRef = useRef(null);
   const navToastRef = useRef(false);
   const { toast, showToast } = useToast(1500);
@@ -83,7 +85,7 @@ export default function Home() {
   // Next Button Handler 
   const handleNext = useCallback(() => {
     setCurrentIndex((i) => {
-      
+
       const list = loadPlaylist();
       const listLength = list.length;
       const currentPlayItemId = list[i].id;
@@ -224,9 +226,6 @@ export default function Home() {
           break;
         case "KeyM":
           controls.toggleMute();
-          // showToast(`${playerRef.current.isMuted()? "UnMute":"Mute"}`);
-          console.log(controls)
-          console.log()
           showToast(controls.audioStatus() ? "UnMuted 🔊" : "Muted 🔈");
           break;
         case "KeyF":
@@ -263,6 +262,7 @@ export default function Home() {
         <div className="container player-wrap">
           <Player
             ref={playerRef}
+            audioOnly={audioOnly}
             playlist={playlist}
             currentIndex={currentIndex}
             currentTitle={currentTitle}
@@ -285,6 +285,15 @@ export default function Home() {
             deleteVideo={handleDelete}
           />
         </div>
+        <BottomPlayerBar
+          playerRef={playerRef}
+          currentVideo={playlist[currentIndex]}
+          isPlaying={isPlaying}
+          handleNext={handleNext}
+          handlePrev={handlePrev}
+          audioOnly={audioOnly}
+          setAudioOnly={setAudioOnly}
+        />
       </div>
       {toast && (
         <div className="message-toast">
