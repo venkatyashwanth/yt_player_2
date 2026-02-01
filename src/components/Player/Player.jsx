@@ -15,7 +15,8 @@ const Player = forwardRef(({
     onError,
     isPrevDisabled,
     isNextDisabled,
-    onBlockedVideo
+    onBlockedVideo,
+    audioOnly
 }, ref) => {
     const playerRef = useRef(null);
     const [isPlayerReady, setIsPlayerReady] = useState(false);
@@ -31,6 +32,9 @@ const Player = forwardRef(({
             if (typeof t === "number") {
                 playerRef.current.seekTo(t + seconds, true);
             }
+        },
+        seekTo(time) {
+            playerRef.current?.seekTo(time, true)
         },
         togglePlayPause() {
             if (!playerRef.current) return;
@@ -69,6 +73,33 @@ const Player = forwardRef(({
             const iframe = document.getElementById("player");
             iframe?.requestFullscreen?.();
         },
+        play() {
+            playerRef.current?.playVideo()
+        },
+        pause() {
+            playerRef.current?.pauseVideo()
+        },
+        getTime() {
+            if (!playerRef.current) return 0;
+            return playerRef.current.getCurrentTime?.() ?? 0;
+        },
+        getDuration() {
+            if (!playerRef.current) return 0;
+            return playerRef.current.getDuration?.() ?? 0;
+        },
+        setVolume(v) {
+            playerRef.current?.setVolume(v)
+        },
+        setLowQuality() {
+            playerRef.current?.setPlaybackQuality("small")
+        },
+        getPlaybackQuality() {
+            return playerRef.current?.getPlaybackQuality?.();
+        },
+
+        getAvailableQualityLevels() {
+            return playerRef.current?.getAvailableQualityLevels?.();
+        }
     }))
 
     // Initialize YoutubeIFrame API
@@ -100,11 +131,14 @@ const Player = forwardRef(({
             clearTimeout(playAttemptTimeoutRef.current);
         }
 
+        if (event.data === window.YT.PlayerState.PLAYING && audioOnly) {
+            event.target.setPlaybackQuality("small");
+        }
+
         if (event.data === window.YT.PlayerState.PLAYING) {
             const videoData = event.target.getVideoData?.();
             const videoId = videoData?.video_id;
             const video = playlist[currentIndex];
-            console.log(videoId);
             // console.log(playerRef.current.getCurrentTime?.());
             // if (!video || !playerRef.current) return;
             const time = playerRef.current.getCurrentTime?.();
@@ -123,6 +157,23 @@ const Player = forwardRef(({
             onEnded?.();
         }
     }, [onPlayingChange, onEnded])
+
+    // Force Downgrading the audio. - But not working because of youtube limitations
+    useEffect(() => {
+        if (!playerRef.current || !audioOnly) return;
+
+        // force low quality AFTER playback starts
+        const forceLowQuality = () => {
+            playerRef.current.setPlaybackQuality("small");
+        };
+
+        forceLowQuality(); // once immediately
+
+        const interval = setInterval(forceLowQuality, 2000);
+
+        return () => clearInterval(interval);
+    }, [audioOnly]);
+
 
     // Load and Play specific video by ID  
     useEffect(() => {
@@ -173,7 +224,6 @@ const Player = forwardRef(({
                 typeof duration === "number" &&
                 time < duration - 20
             ) {
-                console.log("first")
                 saveVideoTime(video.id, time);
             }
         }, 1000)
@@ -183,8 +233,8 @@ const Player = forwardRef(({
     return (
         <>
             <div className={styles.videoArea}>
-                <div className={styles.videoBox}>
-                    <div id="player" className={styles.player}></div>
+                <div className={`${styles.videoBox}  ${audioOnly ? styles.audioOnly : ""}`}>
+                    <div id="player" className={`${styles.player}`}></div>
                 </div>
                 <div className={styles.videoCtrls}>
                     <div className={styles.currentTitle}>
